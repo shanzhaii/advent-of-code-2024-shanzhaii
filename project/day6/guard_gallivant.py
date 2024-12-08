@@ -27,9 +27,10 @@ def iterate_through_path(grid, guard_pos, previous_positions, root_path=True, di
                 modified_grid = [[grid[y][x] for x in range(len(grid[0]))] for y in range(len(grid))]  # deep copy
                 modified_grid[guard_pos[0] + directions[direction_index][0]][guard_pos[1] + directions[direction_index][1]] = '#'
                 if grid[guard_pos[0]][guard_pos[1]] != '^' and iterate_through_path(modified_grid, guard_pos, previous_positions, False, direction_index):
-                    grid[guard_pos[0]][guard_pos[1]] = 'O' # wrong position
-                else:
-                    grid[guard_pos[0]][guard_pos[1]] = 'X'
+                    grid[in_front[0]][in_front[1]] = 'O'  # wrong position
+
+            if grid[guard_pos[0]][guard_pos[1]] != 'O':
+                grid[guard_pos[0]][guard_pos[1]] = 'X'
             previous_positions.setdefault(guard_pos, []).append(direction_index)
             guard_pos = (guard_pos[0] + directions[direction_index][0], guard_pos[1] + directions[direction_index][1])
     if root_path:
@@ -40,12 +41,17 @@ def iterate_through_path(grid, guard_pos, previous_positions, root_path=True, di
 def flatten(list_of_list):
     return [elem for array in list_of_list for elem in array]
 
+def print_grid(grid):
+    for row in grid:
+        print(''.join(row))
 
 if __name__ == "__main__":
-    with open("test", "r", newline='\n') as file:
+    with open("input", "r", newline='\n') as file:
         grid = [list(line.strip()) for line in file.readlines()]
         initial_pos = find_guard(grid)
         grid = iterate_through_path(grid, initial_pos, {})
         print(f"part 1: {flatten(grid).count('X') + flatten(grid).count('O')}")
 
         print(f"part 2: {flatten(grid).count('O')}")
+
+        # print_grid(grid)
