@@ -7,12 +7,8 @@ def is_valid(pos, grid):
     return 0 <= pos[0] < len(grid) and 0 <= pos[1] < len(grid[0])
 
 
-def iterate_through_path(grid, guard_pos, previous_positions, root_path=True, direction_index=0):
-    new_positions = {}
-    for k, v in previous_positions.items(): # todo fix
-        new_positions[k] = list(v)
-    previous_positions = new_positions
-    # previous_positions = {k: list(v) for k, v in previous_positions}  # deep copy
+def iterate_through_path(grid, guard_pos, root_path=True, direction_index=0):
+    previous_positions = {}
     directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]
     while is_valid(guard_pos, grid):
         if guard_pos in previous_positions and direction_index in previous_positions.get(guard_pos):
@@ -26,7 +22,7 @@ def iterate_through_path(grid, guard_pos, previous_positions, root_path=True, di
             if root_path and is_valid(in_front, grid):
                 modified_grid = [[grid[y][x] for x in range(len(grid[0]))] for y in range(len(grid))]  # deep copy
                 modified_grid[guard_pos[0] + directions[direction_index][0]][guard_pos[1] + directions[direction_index][1]] = '#'
-                if grid[guard_pos[0]][guard_pos[1]] != '^' and iterate_through_path(modified_grid, guard_pos, previous_positions, False, direction_index):
+                if grid[guard_pos[0]][guard_pos[1]] != '^' and iterate_through_path(modified_grid, initial_pos, False):
                     grid[in_front[0]][in_front[1]] = 'O'  # wrong position
 
             if grid[guard_pos[0]][guard_pos[1]] != 'O':
@@ -41,17 +37,12 @@ def iterate_through_path(grid, guard_pos, previous_positions, root_path=True, di
 def flatten(list_of_list):
     return [elem for array in list_of_list for elem in array]
 
-def print_grid(grid):
-    for row in grid:
-        print(''.join(row))
 
 if __name__ == "__main__":
     with open("input", "r", newline='\n') as file:
         grid = [list(line.strip()) for line in file.readlines()]
         initial_pos = find_guard(grid)
-        grid = iterate_through_path(grid, initial_pos, {})
+        grid = iterate_through_path(grid, initial_pos)
         print(f"part 1: {flatten(grid).count('X') + flatten(grid).count('O')}")
 
         print(f"part 2: {flatten(grid).count('O')}")
-
-        # print_grid(grid)
