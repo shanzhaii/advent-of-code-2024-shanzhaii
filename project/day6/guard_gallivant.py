@@ -23,7 +23,7 @@ def iterate_through_path(grid, guard_pos, root_path=True, direction_index=0):
                 modified_grid = [[grid[y][x] for x in range(len(grid[0]))] for y in range(len(grid))]  # deep copy
                 modified_grid[guard_pos[0] + directions[direction_index][0]][guard_pos[1] + directions[direction_index][1]] = '#'
                 if grid[guard_pos[0]][guard_pos[1]] != '^' and iterate_through_path(modified_grid, initial_pos, False):
-                    grid[in_front[0]][in_front[1]] = 'O'  # wrong position
+                    grid[in_front[0]][in_front[1]] = 'O'
 
             if grid[guard_pos[0]][guard_pos[1]] != 'O':
                 grid[guard_pos[0]][guard_pos[1]] = 'X'
