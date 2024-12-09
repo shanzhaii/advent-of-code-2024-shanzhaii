@@ -20,9 +20,27 @@ def defragment(uncompressed_disk_map):
 def calculate_checksum(disk_map):
     return sum(map(lambda value: value[0] * value[1], enumerate(disk_map)))
 
+def find_files_and_empty(compressed_disk_map):
+    index_to_file_size = {}
+    index_to_free_size = {}
+    current_index = 0
+    for i in range(len(compressed_disk_map)):
+        size = int(compressed_disk_map[i])
+        if i % 2 == 0:
+            index_to_file_size[current_index] = size
+        else:
+            if size != 0:
+                index_to_free_size[current_index] = size
+        current_index = current_index + size
+    return index_to_file_size, index_to_free_size
+
 if __name__ == "__main__":
-    with open("input", "r") as file:
+    with open("test2", "r") as file:
         input = list(file.read().strip())
         print(f"part 1: {calculate_checksum(defragment(decompress(input)))}")
+
+        files, free = find_files_and_empty(input)
+        print(files)
+        print(free)
         # print(defragment(decompress(input)))
         
