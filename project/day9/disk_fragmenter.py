@@ -7,18 +7,20 @@ def decompress(compressed_disk_map):
                     for i, length in enumerate(compressed_disk_map)])
 
 
-def defragment(uncompressed_disk_map):
-    disk_map = [char for char in uncompressed_disk_map]
-    new_map = []
-    while disk_map:
-        front = disk_map[0]
-        if front != '.':
-            new_map.append(disk_map.pop(0))
+def compact(uncompressed_disk_map):
+    start_pointer = 0
+    end_pointer = len(uncompressed_disk_map) - 1
+    compacted_disk_map = []
+    while start_pointer < end_pointer:
+        if uncompressed_disk_map[start_pointer] == '.':
+            while uncompressed_disk_map[end_pointer] == '.':
+                end_pointer -= 1
+            compacted_disk_map.append(uncompressed_disk_map[end_pointer])
+            end_pointer -= 1
         else:
-            end = disk_map.pop(len(disk_map) - 1)
-            if disk_map:
-                disk_map[0] = end
-    return new_map
+            compacted_disk_map.append(uncompressed_disk_map[start_pointer])
+        start_pointer += 1
+    return compacted_disk_map
 
 
 def calculate_checksum(disk_map):
@@ -32,12 +34,13 @@ def find_files_and_empty(compressed_disk_map):
     for i in range(len(compressed_disk_map)):
         size = int(compressed_disk_map[i])
         if i % 2 == 0:
-            index_to_file[current_index] = (int(i/2), size)
+            index_to_file[current_index] = (int(i / 2), size)
         else:
             if size != 0:
                 index_to_free_size[current_index] = size
         current_index = current_index + size
     return index_to_file, index_to_free_size
+
 
 def block_defragment(index_to_file, index_to_free_size):
     new_index_to_file = {}
@@ -58,6 +61,7 @@ def block_defragment(index_to_file, index_to_free_size):
             new_index_to_file[file_index] = (file_id, file_size)
     return new_index_to_file
 
+
 def file_map_to_disk_map(index_to_file):
     disk_map = []
     i = 0
@@ -73,7 +77,7 @@ def file_map_to_disk_map(index_to_file):
 if __name__ == "__main__":
     with open("input", "r") as file:
         input = list(file.read().strip())
-        print(f"part 1: {calculate_checksum(defragment(decompress(input)))}")
+        print(f"part 1: {calculate_checksum(compact(decompress(input)))}")
 
         files, free = find_files_and_empty(input)
         print(f"part 2: {calculate_checksum(file_map_to_disk_map(block_defragment(files, free)))}")
