@@ -24,16 +24,12 @@ def recursively_solve(stone, iterations_left):
         return storage[(stone, iterations_left)]
     elif int(stone) == 0:
         result = recursively_solve('1', iterations_left-1)
-        storage[(stone, iterations_left)] = result
-        return result
     elif len(stone) % 2 == 0:
         result = recursively_solve(str(int(stone[: int(len(stone)/2)])), iterations_left-1) + recursively_solve(str(int(stone[int(len(stone)/2): ])), iterations_left-1)
-        storage[(stone, iterations_left)] = result
-        return result
     else:
         result = recursively_solve(str(int(stone)*2024), iterations_left-1)
-        storage[(stone, iterations_left)] = result
-        return result
+    storage[(stone, iterations_left)] = result
+    return result
 
 
 
