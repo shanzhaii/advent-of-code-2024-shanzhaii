@@ -1,11 +1,19 @@
 import re
 
 
+def detect_straight(positions, number_in_straight):
+    for position in positions:
+        diag = [(position[0] - i, position[1]) for i in range(number_in_straight)]
+        if all(map(lambda pos: pos in positions, diag)):
+            return True
+    return False
+
+
 def print_robots(positions, grid_size):
     string = ''
     for y in range(grid_size[1]):
         for x in range(grid_size[0]):
-            if (x,y) in positions:
+            if (x, y) in positions:
                 string += '#'
             else:
                 string += '.'
@@ -25,14 +33,11 @@ def move_robot(robot_position, robot_speed, grid_size):
 def run_simulation(robots_info, time, grid_size):
     for i in range(time):
         robots_info = list(map(lambda robot_info: (move_robot(*robot_info, grid_size), robot_info[1]), robots_info))
-        positions, speeds = zip(*robots_info)
-        # if (3, 6) in positions and (7, 6) in positions:
-        print_robots(positions, grid_size)
-        # print(i)
     return list(robots_info)
 
+
 def calculate_safety_factor(positions, grid_size):
-    q1, q2, q3, q4 = 0,0,0,0
+    q1, q2, q3, q4 = 0, 0, 0, 0
     for position in positions:
         if position[0] < int(grid_size[0] / 2) and position[1] < int(grid_size[1] / 2):
             q1 += 1
@@ -45,11 +50,24 @@ def calculate_safety_factor(positions, grid_size):
     return q1 * q2 * q3 * q4
 
 
+def run_until_straight(robots_info, grid_size):
+    i = 1
+    while True:
+        robots_info = list(map(lambda robot_info: (move_robot(*robot_info, grid_size), robot_info[1]), robots_info))
+        positions, speeds = zip(*robots_info)
+        if detect_straight(positions, 8):
+            return i
+        i += 1
+
 
 if __name__ == "__main__":
-    with open("test", "r", newline='\n') as file:
-        grid_size = (11, 7)
+    with open("input", "r", newline='\n') as file:
+        grid_size = (101, 103)
         input = list(map(lambda robot: ((int(robot[0]), int(robot[1])), (int(robot[2]), int(robot[3]))),
                          map(lambda line: re.findall(r"-?\d+", line), file.readlines())))
-        positions, speeds = zip(*run_simulation(input, 1000, grid_size))
+
+        positions, speeds = zip(*run_simulation(input, 100, grid_size))
+
         print(f"part 1: {calculate_safety_factor(positions, grid_size)}")
+
+        print(f"part 2: {run_until_straight(input, grid_size)}")
