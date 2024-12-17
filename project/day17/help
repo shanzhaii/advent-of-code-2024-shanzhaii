@@ -1,0 +1,8 @@
+bst 4 -> b = a mod 8
+bxl 3 -> b = b xor 3: 11
+cdv 5 -> c = a / 2^b
+bxc 7 -> b = b xor C
+adv 3 -> a = a / 2^3
+bxl 5 -> b = b xor 5: 101
+out 5 -> out(b)
+jnz 0
