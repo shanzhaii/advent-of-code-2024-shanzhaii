@@ -17,21 +17,39 @@ def calculate_nth(secret_number, n):
         secret_number = calculate(secret_number)
     return secret_number
 
-def calculate_prices_and_changes(secret_number, n):
+
+def calculate_sequence_to_price(secret_number, n, sequences):
     price = int(str(secret_number)[-1])
-    prices = [price]
     changes = []
     last_price = price
+    sequence_to_price = {}
     for _ in range(n):
         secret_number = calculate(secret_number)
         price = int(str(secret_number)[-1])
-        prices.append(price)
         changes.append(price - last_price)
+        if len(changes) >= 4:
+            sequence = (changes[-4], changes[-3], changes[-2], changes[-1])
+            if sequence not in sequence_to_price:
+                sequences.add(sequence)
+                sequence_to_price[sequence] = price
         last_price = price
-    return prices, changes
+    return sequence_to_price
+
+
+def find_best_sequence(input, n):
+    all_sequences = set()
+    sequence_to_prices = list(
+        map(lambda secret_number: calculate_sequence_to_price(secret_number, n, all_sequences), input))
+    max_bananas = 0
+    for sequence in all_sequences:
+        bananas = sum(map(lambda sequence_to_price: sequence_to_price.get(sequence, 0), sequence_to_prices))
+        max_bananas = max(max_bananas, bananas)
+    return max_bananas
+
 
 if __name__ == "__main__":
     with open("input", "r", newline='\n') as file:
         input = list(map(lambda line: int(line.strip()), file.readlines()))
-        # print(f"part 1: {sum(map(lambda secret_number: calculate_nth(secret_number, 2000), input))}")
-        print(calculate_prices_and_changes(123, 10))
+        print(f"part 1: {sum(map(lambda secret_number: calculate_nth(secret_number, 2000), input))}")
+
+        print(f"part 2: {find_best_sequence(input, 2000)}")
