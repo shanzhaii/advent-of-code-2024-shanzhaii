@@ -1,3 +1,5 @@
+NUM_BITS = 45
+
 def AND(a, b):
     return a & b
 
@@ -15,13 +17,25 @@ def gate_ready(gate, wires):
 
 
 def compute_number(wires, gates):
+    wires = {wire: val for wire, val in wires.items()}
+    gates = {output: gate for output, gate in gates.items()}
     while any(map(lambda gate: gate.startswith('z'), gates.keys())):
         for wire, gate in [val for val in gates.items()]:
             if gate_ready(gate, wires):
                 wires[wire] = gate[0](*[wires[wire] for wire in gate[1]])
                 gates.pop(wire)
-    return int(''.join(map(lambda wire: str(wires[wire]),
-                           sorted(filter(lambda wire: wire.startswith('z'), wires.keys()), reverse=True))), 2)
+    return ''.join(map(lambda wire: str(wires[wire]),
+                           sorted(filter(lambda wire: wire.startswith('z'), wires.keys()), reverse=True)))
+
+def convert_num_to_wires(a, b):
+    x = format(a, 'b').zfill(45)
+    y = format(b, 'b').zfill(45)
+    wires = {}
+    for i, wire in enumerate(reversed(x)):
+        wires[f'x{str(i).zfill(2)}'] = int(wire)
+    for i, wire in enumerate(reversed(y)):
+        wires[f'y{str(i).zfill(2)}'] = int(wire)
+    return wires
 
 
 if __name__ == "__main__":
@@ -36,4 +50,11 @@ if __name__ == "__main__":
             for gate, wire in
             [gate.split('->') for gate in gates.strip().split('\n')]
         }
-        print(compute_number(wires, gates))
+        print(f"part 1: {int(compute_number(wires, gates), 2)}")
+
+        print("part 2:")
+        a = 11111111111
+        b = 0
+        print(f"expected: a + b = {format(a+b, 'b').zfill(46)}")
+        print(f"actual:   a + b = {compute_number(convert_num_to_wires(a, b), gates)}")
+
