@@ -1,26 +1,23 @@
-# def patterns_possible(pattern:str, towels, storage):
+def patterns_possible(pattern: str, towels, storage):
+    if len(pattern) == 0:
+        return 1
+    candidates = list(filter(lambda towel: pattern.startswith(towel), towels))
+    if len(candidates) == 0:
+        return 0
+    total_possibilities = 0
+    for towel in candidates:
+        total_possibilities += patterns_possible(pattern[len(towel):], towels, storage)
+    return total_possibilities
+
+# def patterns_possible(pattern: str, towels, storage):
 #     if pattern in storage:
 #         return storage[pattern]
 #     else:
-#         possible_patterns = []
-#         for towel in filter(lambda towel: pattern.startswith(towel), towels):
-#             if len(pattern[len(towel):]) == 0:
-#                 possible_patterns.append([towel])
-#             else:
-#                 for subpattern in patterns_possible(pattern[len(towel):], towels, storage):
-#                     possible_patterns.append([towel] + subpattern)
-#         storage[pattern] = possible_patterns
-#         return possible_patterns
-
-def patterns_possible(pattern: str, towels, storage):
-    if pattern in storage:
-        return storage[pattern]
-    else:
-        count = 1 if pattern in towels else 0
-        for i in range(1, len(pattern)):
-            count += patterns_possible(pattern[:i], towels, storage) * patterns_possible(pattern[i:], towels, storage)
-        storage[pattern] = count
-        return count
+#         count = 1 if pattern in towels else 0
+#         for i in range(1, len(pattern)):
+#             count += patterns_possible(pattern[:i], towels, storage) * patterns_possible(pattern[i:], towels, storage)
+#         storage[pattern] = count
+#         return count
 
 # def patterns_possible(pattern: str, towels, storage):
 #     if pattern in storage:
@@ -41,7 +38,7 @@ if __name__ == "__main__":
         towels = list(map(lambda towel: towel.strip(), towels.split(',')))
         patterns = patterns.strip().split('\n')
         storage = {}
-        print(patterns_possible('gbbr', towels, storage))
+        print(patterns_possible('brwrr', towels, storage))
 
 
 
