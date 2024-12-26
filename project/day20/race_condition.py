@@ -60,20 +60,22 @@ def find_cheats(grid, max_cheat_cost, min_cheat):
             in_front = (step[0] + direction[0], step[1] + direction[1])
             if is_valid(in_front, size) and (in_front in obstacles):
                 cheat_start = in_front
-                for j, cheat_end in filter(lambda i_path: i_path[0] > i + min_cheat and distance(i_path[1], cheat_start) <= max_cheat_cost, enumerate(normal_path)): # todo switch from functional to if
-                    cheat = (cheat_start, cheat_end)
-                    if cheat not in explored_cheats:
-                        cheat_traversal = traverse_maze({}, cheat_start, cheat_end, size, max_cost=max_cheat_cost)
-                        if cheat_traversal is not None:
-                            cheat_cost = cheat_traversal
-                            if cheat_cost < j-i-1:
-                                cheats.setdefault(j-i-cheat_cost-1, set()).add(cheat)
-                        explored_cheats.add(cheat)
-    print(cheats)
+                for j in range(i+min_cheat, len(normal_path)):
+                    if distance(normal_path[j], cheat_start) <= max_cheat_cost:
+                        cheat_end = normal_path[j]
+                        cheat = (cheat_start, cheat_end)
+                        if cheat not in explored_cheats:
+                            cheat_traversal = traverse_maze({}, cheat_start, cheat_end, size, max_cost=max_cheat_cost)
+                            if cheat_traversal is not None:
+                                cheat_cost = cheat_traversal
+                                if cheat_cost < j-i-1:
+                                    cheats.setdefault(j-i-cheat_cost-1, set()).add(cheat)
+                            explored_cheats.add(cheat)
+    return sum([len(positions) for cheat_save, positions in cheats.items() if cheat_save >= min_cheat])
 
 
 
 if __name__ == "__main__":
-    with open("test", "r", newline='\n') as file:
+    with open("input", "r", newline='\n') as file:
         grid = [list(line.strip()) for line in file.readlines()]
-        print(find_cheats(grid, 1, 0))
+        print(find_cheats(grid, 1, 100))
