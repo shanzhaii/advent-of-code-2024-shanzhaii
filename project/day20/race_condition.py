@@ -19,22 +19,28 @@ def find_features(grid):
     return obstacles, start, end, size
 
 
-def traverse_maze(obstacles, start, end, size, max_cost=None):
-    to_explore = {start}
+def traverse_maze(obstacles, start, end, size, max_cost=None, calculate_path=False):
+    to_explore = [start]
+    explored = set()
     cost = {start: 0}
     path = {start: [(start)]}
-    while to_explore and (max_cost is None or min(map(lambda to_explore: cost[to_explore], to_explore)) <= max_cost):
-        pos = to_explore.pop()
+    while to_explore and (max_cost is None or cost[to_explore[0]] <= max_cost):
+        pos = to_explore.pop(0)
+        if pos == end:
+            if calculate_path:
+                return path[end], cost[end]
+            return cost[end]
         for direction in directions:
             in_front = (pos[0] + direction[0], pos[1] + direction[1])
             if (is_valid(in_front, size)
                     and (in_front not in obstacles)
                     and (in_front not in cost or cost[in_front] > cost[pos] + 1)):
-                to_explore.add(in_front)
+                if in_front not in to_explore or in_front not in explored:
+                    to_explore.append(in_front)
                 cost[in_front] = cost[pos] + 1
-                path[in_front] = path[pos] + [in_front]
-    if end in path:
-        return path[end], cost[end]
+                if calculate_path:
+                    path[in_front] = path[pos] + [in_front]
+        explored.add(pos)
     else:
         return None
 
@@ -43,22 +49,23 @@ def distance(a, b):
     b_y, b_x = b
     return abs(a_x - b_x) + abs(a_y - b_y)
 
-def find_cheats(grid, cheat_cost):
+def find_cheats(grid, max_cheat_cost, min_cheat):
     obstacles, start, end, size = find_features(grid)
     cheats = {}
     explored_cheats = set()
-    normal_path, normal_time = traverse_maze(obstacles, start, end, size)
+    normal_path, normal_time = traverse_maze(obstacles, start, end, size, calculate_path=True)
     for i, step in enumerate(normal_path):
+        print(i)
         for direction in directions:
             in_front = (step[0] + direction[0], step[1] + direction[1])
             if is_valid(in_front, size) and (in_front in obstacles):
                 cheat_start = in_front
-                for j, cheat_end in filter(lambda i_path: i_path[0] > i and distance(i_path[1], cheat_start) <= cheat_cost, enumerate(normal_path)):
+                for j, cheat_end in filter(lambda i_path: i_path[0] > i + min_cheat and distance(i_path[1], cheat_start) <= max_cheat_cost, enumerate(normal_path)): # todo switch from functional to if
                     cheat = (cheat_start, cheat_end)
                     if cheat not in explored_cheats:
-                        cheat_traversal = traverse_maze({}, cheat_start, cheat_end, size, max_cost=cheat_cost)
+                        cheat_traversal = traverse_maze({}, cheat_start, cheat_end, size, max_cost=max_cheat_cost)
                         if cheat_traversal is not None:
-                            cheat_path, cheat_cost = cheat_traversal
+                            cheat_cost = cheat_traversal
                             if cheat_cost < j-i-1:
                                 cheats.setdefault(j-i-cheat_cost-1, set()).add(cheat)
                         explored_cheats.add(cheat)
@@ -69,4 +76,4 @@ def find_cheats(grid, cheat_cost):
 if __name__ == "__main__":
     with open("test", "r", newline='\n') as file:
         grid = [list(line.strip()) for line in file.readlines()]
-        print(find_cheats(grid, 1))
+        print(find_cheats(grid, 1, 0))
