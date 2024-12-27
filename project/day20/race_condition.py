@@ -34,23 +34,35 @@ def find_normal_path(obstacles, start, end, size):
                 path[in_front] = path[pos] + [in_front]
     return path[end], cost[end]
 
-def traverse_maze(obstacles, start, end, size, max_cost):
+def traverse_maze(obstacles, start, end, size, max_cost, saved_costs):
+    if (start, end) in saved_costs:
+        return saved_costs[(start, end)]
     to_explore = [start]
     explored = set()
-    cost = {start: 0}
-    while to_explore and cost[to_explore[0]] <= max_cost:
+    costs = {start: 0}
+    paths = {start: [(start)]}
+    while to_explore and costs[to_explore[0]] <= max_cost:
         pos = to_explore.pop(0)
         if pos == end:
-            return cost[end]
+            for path in paths.values():
+                for i in range(len(path)):
+                    for j in range(i, len(path)):
+                        saved_costs.setdefault((path[i], path[j]), j-i)
+            return costs[end]
         for direction in directions:
             in_front = (pos[0] + direction[0], pos[1] + direction[1])
             if (is_valid(in_front, size)
                     and (in_front not in obstacles)
-                    and (in_front not in cost or cost[in_front] > cost[pos] + 1)):
+                    and (in_front not in costs or costs[in_front] > costs[pos] + 1)):
                 if in_front not in to_explore or in_front not in explored:
                     to_explore.append(in_front)
-                cost[in_front] = cost[pos] + 1
+                costs[in_front] = costs[pos] + 1
+                paths[in_front] = paths[pos] + [in_front]
         explored.add(pos)
+    for path in paths.values():
+        for i in range(len(path)):
+            for j in range(i, len(path)):
+                saved_costs.setdefault((path[i], path[j]), j - i)
     return None
 
 def distance(a, b):
@@ -63,6 +75,7 @@ def find_cheats(grid, max_cheat_cost, min_cheat):
     cheats = {}
     explored_cheats = set()
     normal_path, normal_time = find_normal_path(obstacles, start, end, size)
+    saved_costs = {}
     for i, step in enumerate(normal_path):
         print(i)
         cheat_start = step
@@ -71,7 +84,7 @@ def find_cheats(grid, max_cheat_cost, min_cheat):
                 cheat_end = normal_path[j]
                 cheat = (cheat_start, cheat_end)
                 if cheat not in explored_cheats:
-                    cheat_traversal = traverse_maze({}, cheat_start, cheat_end, size, max_cost=max_cheat_cost)
+                    cheat_traversal = traverse_maze({}, cheat_start, cheat_end, size, max_cheat_cost, saved_costs)
                     if cheat_traversal is not None:
                         cheat_cost = cheat_traversal
                         if cheat_cost < j-i:
