@@ -73,6 +73,7 @@ def calculate_sequence(line, num_directional=2):
     length = process_iteration(sequence, num_directional, storage)
     return length * int(line.strip('A'))
 
+
 def process_iteration(pattern, iterations_left, storage):
     if iterations_left == 0:
         return len(pattern)
@@ -81,9 +82,12 @@ def process_iteration(pattern, iterations_left, storage):
     else:
         total = 0
         for sub_pattern in ''.join(pattern).split('A')[:-1]:
-            total += process_iteration(remote_control(list(sub_pattern) + ['A'], direction_keypad, (0, 2)), iterations_left - 1, storage)
+            total += process_iteration(
+                remote_control(list(sub_pattern) + ['A'], direction_keypad, (0, 2)),
+                                       iterations_left - 1, storage)
         storage[(tuple(pattern), iterations_left)] = total
         return total
+
 
 if __name__ == "__main__":
     with open("input", "r", newline='\n') as file:
