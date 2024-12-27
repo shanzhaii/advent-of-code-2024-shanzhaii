@@ -68,12 +68,26 @@ def no_interleaving(steps):
 
 def calculate_sequence(line, num_directional=2):
     sequence = remote_control(line, numeric_keypad, (3, 2))
-    for _ in range(num_directional):
-        sequence = remote_control(sequence, direction_keypad, (0, 2))
-    return len(sequence) * int(line.strip('A'))
 
+    storage = {}
+    length = process_iteration(sequence, num_directional, storage)
+    return length * int(line.strip('A'))
+
+def process_iteration(pattern, iterations_left, storage):
+    if iterations_left == 0:
+        return len(pattern)
+    elif (tuple(pattern), iterations_left) in storage:
+        return storage[(tuple(pattern), iterations_left)]
+    else:
+        total = 0
+        for sub_pattern in ''.join(pattern).split('A')[:-1]:
+            total += process_iteration(remote_control(list(sub_pattern) + ['A'], direction_keypad, (0, 2)), iterations_left - 1, storage)
+        storage[(tuple(pattern), iterations_left)] = total
+        return total
 
 if __name__ == "__main__":
     with open("input", "r", newline='\n') as file:
         input = list(map(lambda line: line.strip(), file.readlines()))
         print(f"part 1: {sum(map(calculate_sequence, input))}")
+
+        print(f"part 1: {sum(map(lambda sequence: calculate_sequence(sequence, 25), input))}")
