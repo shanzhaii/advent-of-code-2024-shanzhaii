@@ -15,11 +15,11 @@ def is_valid(pos, grid):
     return 0 <= pos[0] < len(grid) and 0 <= pos[1] < len(grid[0]) and grid[pos[0]][pos[1]] != '#'
 
 
-def best_robot(sequence, pad, starting_pos):
+def remote_control(sequence, pad, starting_pos):
     robot_sequence = []
     last_pos = starting_pos
     for key in sequence:
-        last_pos, path = best_shortest_path(pad, last_pos, key)
+        last_pos, path = shortest_path(pad, last_pos, key)
         robot_sequence = robot_sequence + path
     return robot_sequence
 
@@ -30,7 +30,7 @@ def prepare_steps(steps):
     return keys + ['A']
 
 
-def best_shortest_path(pad, starting_pos, value):
+def shortest_path(pad, starting_pos, value):
     directions = [(-1, 0), (0, 1), (1, 0), (0, -1)]
     sorted_directions = [(0, -1), (1, 0), (-1, 0), (0, 1)]
     to_explore = [starting_pos]
@@ -66,14 +66,14 @@ def no_interleaving(steps):
     return True
 
 
-def calculate_full(line):
-    robot1 = best_robot(line, numeric_keypad, (3, 2))
-    robot2 = best_robot(robot1, direction_keypad, (0, 2))
-    human = best_robot(robot2, direction_keypad, (0, 2))
-    return len(human) * int(line.strip('A'))
+def calculate_sequence(line, num_directional=2):
+    sequence = remote_control(line, numeric_keypad, (3, 2))
+    for _ in range(num_directional):
+        sequence = remote_control(sequence, direction_keypad, (0, 2))
+    return len(sequence) * int(line.strip('A'))
 
 
 if __name__ == "__main__":
     with open("input", "r", newline='\n') as file:
         input = list(map(lambda line: line.strip(), file.readlines()))
-        print(f"part 1: {sum(map(calculate_full, input))}")
+        print(f"part 1: {sum(map(calculate_sequence, input))}")
