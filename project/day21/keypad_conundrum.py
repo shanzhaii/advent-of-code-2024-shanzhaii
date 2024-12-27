@@ -94,4 +94,4 @@ if __name__ == "__main__":
         input = list(map(lambda line: line.strip(), file.readlines()))
         print(f"part 1: {sum(map(calculate_sequence, input))}")
 
-        print(f"part 1: {sum(map(lambda sequence: calculate_sequence(sequence, 25), input))}")
+        print(f"part 2: {sum(map(lambda sequence: calculate_sequence(sequence, 25), input))}")
