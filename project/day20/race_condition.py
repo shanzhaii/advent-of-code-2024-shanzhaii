@@ -35,30 +35,21 @@ def find_normal_path(obstacles, start, end, size):
     return path[end], cost[end]
 
 def traverse_maze(obstacles, start, end, size, max_cost):
-    global storage
     to_explore = [start]
     explored = set()
-    cost, path = storage
-    cost.setdefault((start, start), 0)
-    path.setdefault((start, start), [start])
-    while to_explore and (max_cost is None or cost[(start, to_explore[0])] <= max_cost):
-        if (start, end) in cost:
-            return cost[(start, end)]
+    cost = {start: 0}
+    while to_explore and cost[to_explore[0]] <= max_cost:
         pos = to_explore.pop(0)
+        if pos == end:
+            return cost[end]
         for direction in directions:
             in_front = (pos[0] + direction[0], pos[1] + direction[1])
             if (is_valid(in_front, size)
                     and (in_front not in obstacles)
-                    and ((start, in_front) not in cost or cost[(start, in_front)] >= cost[(start, pos)] + 1)):
+                    and (in_front not in cost or cost[in_front] > cost[pos] + 1)):
                 if in_front not in to_explore or in_front not in explored:
                     to_explore.append(in_front)
-                path[(start, in_front)] = path[(start, pos)] + [in_front]
-                cost[(start, in_front)] = cost[(start, pos)] + 1
-                # full_previous_path = path[(start, pos)]
-                # for i in range(min(len(full_previous_path), 3)):
-                #     if (full_previous_path[i], in_front) not in cost:
-                #         path[(full_previous_path[i], in_front)] = full_previous_path[i:] + [in_front]
-                #         cost[(full_previous_path[i], in_front)] = len(full_previous_path) - i
+                cost[in_front] = cost[pos] + 1
         explored.add(pos)
     return None
 
@@ -88,11 +79,11 @@ def find_cheats(grid, max_cheat_cost, min_cheat):
                     explored_cheats.add(cheat)
     return sum([len(positions) for cheat_save, positions in cheats.items() if cheat_save >= min_cheat])
 
-storage = ({}, {})
+
 
 if __name__ == "__main__":
     with open("input", "r", newline='\n') as file:
         grid = [list(line.strip()) for line in file.readlines()]
-        print(f"part 1: {find_cheats(grid, 20, 100)}")
+        print(f"part 1: {find_cheats(grid, 2, 100)}")
 
-        # print(f"part 2: {find_cheats(grid, 20, 100)}")
+        print(f"part 2: {find_cheats(grid, 20, 100)}")
